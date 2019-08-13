@@ -1,0 +1,18 @@
+.DS_Store
+/project-1
+/project-1/node_modules/
+/project-1/dist/
+/project-1/npm-debug.log*
+/project-1/yarn-debug.log*
+/project-1/yarn-error.log*
+/project-1/test/unit/coverage/
+/project-1/test/e2e/reports/
+/project-1/selenium-debug.log
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
