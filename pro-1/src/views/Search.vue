@@ -55,7 +55,7 @@ export default {
         .on('drag', dragged)
         .on('end', dragended)
     },
-    draw (data, first) {      
+    draw (data, first) {
       this.spinShow = true
       let links = data.links
       let nodes = data.nodes
@@ -110,8 +110,6 @@ export default {
     },
     drawRect (data) {
       let _self_ = this
-      const nodes = data.nodes.map(d => Object.create(d))
-
       let objRect = {}
 
       const rectNodes = data.nodes.map((d, index) => {

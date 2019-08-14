@@ -63,7 +63,6 @@ export default {
     },
     drawRect () {
       d3.select('.tags').select('svg').remove()
-      const nodes = this.initData.nodes.map(d => Object.create(d))
       let svg = d3.select('.tags').append('svg')
       let _self_ = this
       svg.attr('height', 50).attr('width', `${this.groupList.length * 80}`)
