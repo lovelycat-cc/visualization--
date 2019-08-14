@@ -66,9 +66,6 @@ export default {
       const nodes = this.initData.nodes.map(d => Object.create(d))
       let svg = d3.select('.tags').append('svg')
       let _self_ = this
-      const scale = d3.scaleOrdinal()
-        .domain(d3.range(nodes.length))
-        .range(d3.schemeCategory10)
       svg.attr('height', 50).attr('width', `${this.groupList.length * 80}`)
       svg.append('g')
         .attr('class', 'labels')
@@ -94,7 +91,7 @@ export default {
         .attr('ry', 10)
         .attr('fill', function (d, i) {
           if (i === _self_.carousel) {
-            return scale(d)
+            return _self_.scale[d]
           } else {
             return '#ddd'
           }

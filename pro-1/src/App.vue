@@ -9,7 +9,7 @@
               <router-link to="/"><Icon type="ios-navigate"></Icon>首页</router-link>
             </MenuItem>
             <MenuItem name="2">
-              <router-link to="/searchPage"><Icon type="ios-keypad"></Icon>关键词搜索</router-link>
+              <router-link to="/searchPage" :class="{'router-link-exact-active': searchActive}"><Icon type="ios-keypad"></Icon>关键词搜索</router-link>
             </MenuItem>
             <MenuItem name="3">
               <Icon type="md-help-circle" size="18" class="help-btn" @click="helpModal = true"></Icon>
@@ -29,7 +29,7 @@
         </div>
         <Card>
           <div style="min-height: calc(100vh - 230px);">
-            <router-view />
+            <router-view :key="$route.fullPath"/>
           </div>
         </Card>
       </Content>
@@ -91,6 +91,9 @@ export default {
           break
       }
       return res
+    },
+    searchActive () {
+      return this.$route.path.includes('/searchPage')
     }
   }
 }
