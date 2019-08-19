@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="tags"></div>
-    <Carousel class="carousel" v-model="carousel" autoplay loop :autoplay-speed="5000">
+    <Carousel class="carousel" v-model="carousel" loop autoplay :autoplay-speed="5000">
       <CarouselItem v-for="(item, index) in groupList" :key="index">
         <div :class="`svg-${index}`" class="svg"></div>
       </CarouselItem>
@@ -35,13 +35,15 @@ export default {
     }
   },
   mounted () {
-    d3.json('https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json').then((res) => {
-      this.initData = res
-      res.nodes.forEach((item, index) => {
+    this.$emit('on-clear-search-key')
+    this.$axios('http://localhost:31000/getAllInfo').then(res => {
+      console.log(res)
+      this.initData = res.data
+      res.data.forEach((item, index) => {
         this.nodesObj[item.id] = item
       })
       let objRect = {}
-      this.groupList = res.nodes.map((d, index) => {
+      this.groupList = res.data.map((d, index) => {
         if (objRect.hasOwnProperty(d.group)) {
           return -1
         } else {
@@ -53,12 +55,15 @@ export default {
         this.drawInit()
       })
     })
+    // d3.json('https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json').then((res) => {
+
+    // })
   },
   methods: {
     drawInit () {
       this.drawRect()
       this.groupList.forEach((item, index) => {
-        this.drawWords(index)
+        this.drawWords(item, index)
       })
     },
     drawRect () {
@@ -99,11 +104,11 @@ export default {
         .selectAll('g')
         .append('text')
         .text(function (d) {
-          return d
+          return _self_.labelsObj[d]
         })
         .attr('fill', '#333')
         .attr('stroke', '#fff')
-        .attr('stroke-width', 0.5)
+        .attr('stroke-width', 0)
         .style('font-size', function (d) {
           return `${16}px`
         })
@@ -113,29 +118,37 @@ export default {
         .attr('text-anchor', 'middle')
         .attr('transform', `translate(${35}, ${25})`)
     },
-    drawWords (currentIndex) {
-      const width = 500
+    drawWords (currentItem, currentIndex) {
+      const width = 1000
       const height = 500
 
       let _self_ = this
 
       let colorWords = d3.scaleOrdinal(d3.schemeCategory10)
 
-      let dataCurrent = this.initData.nodes.filter((item, index) => {
-        return item.group === currentIndex
+      let dataCurrent = this.initData.filter((item, index) => {
+        return item.group === currentItem
       }).map((item, index) => {
-        return item.id
+        return {
+          id: item.id,
+          size: item.size
+        }
       })
-
+      let sizes = dataCurrent.map((item) => {
+        return item.size
+      })
+      let maxSize = Math.max.apply(null, sizes)
+      let minSize = Math.min.apply(null, sizes)
+      console.log(dataCurrent)
       let svg = d3.select(`.svg-${currentIndex}`).append('svg')
       svg.attr('width', width).attr('height', height)
 
       let words = dataCurrent.map(function (d) {
-        return { text: d, size: 10 + Math.random() * 90 }
+        return { text: d.id, size: 10 + (d.size - minSize) * 90 / (maxSize - minSize)}
       })
 
       let layoutWords = cloud()
-        .size([500, 500])
+        .size([width, height])
         .words(words)
         .padding(5)
         .rotate(function () {

@@ -29,7 +29,7 @@
         </div>
         <Card>
           <div style="min-height: calc(100vh - 230px);">
-            <router-view :key="$route.fullPath"/>
+            <router-view :key="$route.fullPath" @on-clear-search-key="clearSearchKey"/>
           </div>
         </Card>
       </Content>
@@ -77,6 +77,9 @@ export default {
           key: this.searchKey
         }
       })
+    },
+    clearSearchKey () {
+      this.searchKey = ''
     }
   },
   computed: {
