@@ -23,7 +23,7 @@
             <BreadcrumbItem>WORDANCE</BreadcrumbItem>
             <BreadcrumbItem>{{ currentPage }}</BreadcrumbItem>
           </Breadcrumb>
-          <Input style="width:150px;" v-model="searchKey" placeholder="请输入关键词">
+          <Input style="width:150px;" v-model="searchKey" placeholder="请输入关键词" @on-keyup.enter="goSearch">
             <Icon type="ios-search" slot="suffix" class="search-btn" @click="goSearch"/>
           </Input>
         </div>
@@ -58,6 +58,9 @@ export default {
       helpModal: false,
       searchKey: ''
     }
+  },
+  mounted () {
+    this.searchKey = this.$route.query.key
   },
   methods: {
     okModal () {

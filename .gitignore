@@ -8,6 +8,8 @@
 /pro-1/test/e2e/reports/
 /pro-1/selenium-debug.log
 
+/frontend-test/__pycache__
+
 # Editor directories and files
 .idea
 .vscode

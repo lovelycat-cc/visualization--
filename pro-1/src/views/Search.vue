@@ -18,24 +18,27 @@ export default {
       nodesObj: {},
       height: 600,
       width: 600,
-      spinShow: true
+      spinShow: false
     }
   },
   mounted () {
-    // this.$axios.post('/url', {
-    //   key: 'word'
-    // }).then(res => {
-
-    // })
-    d3.json('https://gist.githubusercontent.com/mbostock/4062045/raw/5916d145c8c048a6e3086915a6be464467391c62/miserables.json').then((res) => {
-      this.initData = res
-      this.drawInit(res)
-      res.nodes.forEach((item, index) => {
-        this.nodesObj[item.id] = item
-      })
-    })
+    if (this.$route.query.key) {
+      this.spinShow = true
+      this.getConnectedWords(this.$route.query.key)
+    } else {
+      this.$Message.info('请在搜索框输入关键词进行搜索')
+    }
   },
   methods: {
+    getConnectedWords (keyword) {
+      this.$axios.get(`http://localhost:31000/getNodesByKeyword?keyword=${keyword}`).then(res => {
+        this.initData = res.data
+        this.drawInit(res.data)
+        res.data.nodes.forEach((item, index) => {
+          this.nodesObj[item.id] = item
+        })
+      })
+    },
     drawInit (data) {
       this.draw(data, true)
       this.drawRect(data)
@@ -83,7 +86,7 @@ export default {
         .selectAll('line')
         .data(links)
         .join('line')
-        .attr('stroke-width', d => Math.sqrt(d.value))
+        .attr('stroke-width', d => 1) // 后续再看value怎么算
       const node = svg.append('g')
         .attr('class', 'nodes')
         .attr('stroke', '#fff')
@@ -129,25 +132,20 @@ export default {
       const svg = d3.select('svg')
 
       svg.append('g')
+        .attr('class', 'labels')
         .attr('stroke', '#fff')
         .attr('stroke-width', 1.5)
-        .selectAll('rect')
+        .selectAll('g')
         .data(rectNodes)
-        .join('rect')
-        .attr('width', 12)
-        .attr('height', 8)
-        .attr('x', 10)
-        .attr('y', function (d, i) {
-          return i * 15
+        .join('g')
+        .attr('transform', function (d, i) {
+          return `translate(${10}, ${i * 30})`
         })
-        .attr('rx', 3)
-        .attr('ry', 3)
-        .attr('fill', function (d) {
-          return _self_.scale[d]
-        })
+        .style('cursor', 'pointer')
         .on('click', function (d, i) {
           if (objRect[d] === 1) { // 此时为选中状态
-            d3.select(this).style('fill', '#ddd')
+            d3.select(this).select('rect').style('fill', '#ddd')
+            d3.select(this).select('text').style('fill', '#333')
             objRect[d] = -1
             let currentNodes = rectNodes.filter((item, index) => {
               return objRect[item] === 1
@@ -165,7 +163,8 @@ export default {
             _self_.draw({ links: links, nodes: data })
           } else {
             objRect[d] = 1
-            d3.select(this).style('fill', _self_.scale[d])
+            d3.select(this).select('rect').style('fill', _self_.scale[d])
+            d3.select(this).select('text').style('fill', '#fff')
             let currentNodes = rectNodes.filter((item, index) => {
               return objRect[item] === 1
             })
@@ -180,6 +179,34 @@ export default {
             _self_.draw({ links: links, nodes: data })
           }
         })
+
+      svg
+        .select('.labels')
+        .selectAll('g')
+        .append('rect')
+        .attr('width', 30)
+        .attr('height', 15)
+        .attr('rx', 3)
+        .attr('ry', 3)
+        .attr('fill', function (d) {
+          return _self_.scale[d]
+        })
+
+      svg.select('.labels')
+        .selectAll('g')
+        .append('text')
+        .text(function (d) {
+          return _self_.labelsObj[d]
+        })
+        .attr('stroke-width', 0)
+        .style('font-size', function (d) {
+          return `${10}px`
+        })
+        .style('background', 'transparent')
+        .style('fill', '#fff')
+        .style('font-family', 'Impact')
+        .attr('text-anchor', 'middle')
+        .attr('transform', `translate(${15}, ${11})`)
     }
   }
 }

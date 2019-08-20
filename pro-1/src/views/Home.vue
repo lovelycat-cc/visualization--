@@ -144,7 +144,7 @@ export default {
       svg.attr('width', width).attr('height', height)
 
       let words = dataCurrent.map(function (d) {
-        return { text: d.id, size: 10 + (d.size - minSize) * 90 / (maxSize - minSize)}
+        return { text: d.id, size: 10 + (d.size - minSize) * 90 / (maxSize - minSize) }
       })
 
       let layoutWords = cloud()
