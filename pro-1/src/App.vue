@@ -62,6 +62,9 @@ export default {
   mounted () {
     this.searchKey = this.$route.query.key
   },
+  updated () {
+    this.searchKey = this.$route.query.key
+  },
   methods: {
     okModal () {
       this.helpModal = false

@@ -168,6 +168,7 @@ export default {
       layoutWords.start()
     },
     draw (svg, words, layoutWords, colorWords) {
+      let _self_ = this
       svg
         .append('g')
         .attr('transform', `translate(${layoutWords.size()[0] / 2},${layoutWords.size()[1] / 2})`)
@@ -189,7 +190,12 @@ export default {
           return d.text
         })
         .on('click', function (d, i) {
-          window.open('http://www.baidu.com')
+          _self_.$router.push({
+            path: '/searchPage',
+            query: {
+              key: d.text
+            }
+          })
         })
     }
   }

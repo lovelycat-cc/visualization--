@@ -2,8 +2,45 @@
 <div>
   <div class="search content">
     <div class="left"></div>
-    <div class="right">点击左侧点出现点的具体信息</div>
+    <div class="right">
+    <Spin size="large" v-if="spinRightShow"></Spin>
+      <p v-if="newsList.length === 0" class="tip">点击左侧点出现点的具体信息</p>
+      <div v-if="newsList.length > 0">
+        <div class ="tags hidden">
+          <Tag class="tag" :class="groupClicked">{{keyClicked}}</Tag>
+          <Tag class="tag" :class="groupClicked">{{labelsObj[groupClicked]}}</Tag>
+          <span class="more">>>更多文章</span>
+        </div>
+        <div v-for="(item, index) in newsList" :key="index" class="card">
+          <Card v-if="index < 2">
+            <p slot="title">{{ item.title}}</p>
+            <p class="author">{{item.source}}  {{item.author}}</p>
+            <p v-for="(i,idx) in getOpinion(item.opinion)" :key="idx">
+              <Alert v-if="idx < 4">{{i[0]}}: {{i[2]}}</Alert>
+            </p>
+            <p v-if="getOpinion(item.opinion).length === 0">
+              <Alert type="warning">暂无观点内容</Alert>
+            </p>
+            <p class="hidden">
+              <span class="more" @click="showMoreContent(item)">>>更多内容</span>
+            </p>
+          </Card>
+        </div>
+      </div>
+    </div>
   </div>
+  <Modal
+    v-model="moreContentModal.show"
+    :title="moreContentModal.title"
+    @on-ok="okModal"
+    :scollable="true"
+    class="contentModal"
+    @on-cancel="cancelModal">
+    <div v-html="moreContentModal.content"></div>
+    <div slot="footer">
+      <Button type="primary">确定</Button>
+    </div>
+  </Modal>
   <Spin size="large" fix v-if="spinShow"></Spin>
 </div>
 </template>
@@ -18,7 +55,12 @@ export default {
       nodesObj: {},
       height: 600,
       width: 600,
-      spinShow: false
+      spinShow: false,
+      newsList: [],
+      keyClicked: '',
+      groupClicked: '',
+      spinRightShow: false,
+      moreContentModal: {}
     }
   },
   mounted () {
@@ -38,6 +80,33 @@ export default {
           this.nodesObj[item.id] = item
         })
       })
+    },
+    getDetail (keyword, label) {
+      this.spinRightShow = true
+      this.keyClicked = keyword
+      this.groupClicked = label
+      this.$axios.get(`http://localhost:31000/getInfoByKeyword?keyword=${keyword}&label=${label}`).then(res => {
+        this.newsList = res.data
+        this.spinRightShow = false
+      })
+    },
+    getOpinion (opinions) {
+      return opinions.filter((item, index) => {
+        return item[2] && item[2].length >= 4
+      })
+    },
+    showMoreContent (item) {
+      this.$set(this.moreContentModal, 'show', true)
+      this.$set(this.moreContentModal, 'title', item.title)
+      this.$set(this.moreContentModal, 'content', item.content.replace(/\\n/g, '<br>'))
+    },
+    okModal () {
+      this.moreContentModal = {}
+      this.$set(this.moreContentModal, 'show', false)
+    },
+    cancelModal () {
+      this.moreContentModal = {}
+      this.$set(this.moreContentModal, 'show', false)
     },
     drawInit (data) {
       this.draw(data, true)
@@ -99,7 +168,7 @@ export default {
           return _self_.scale[d.group]
         })
         .on('click', function (d) {
-          document.querySelector('.right').innerHTML = `<span style='color: ${_self_.scale[d.group]}'>[${d.group}][${d.index}-${d.id}]${JSON.stringify(d)}</span>`
+          _self_.getDetail(d.id, d.group)
         })
         .call(this.drag(simulation))
       node.append('title')
@@ -224,8 +293,65 @@ export default {
   width: 50%;
   overflow: visible;
   word-break: break-word;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+}
+.tip {
+  text-align: center;
+}
+.tags {
+  margin-bottom: 10px
+}
+.tag.civilization>>>span {
+  color: #ff7f0e !important;
+}
+.tag.economy>>>span {
+  color: #2ca02c !important;
+}
+.tag.education>>>span {
+  color: #d62728 !important;
+}
+.tag.military>>>span {
+  color: #9467bd !important;
+}
+.tag.polity>>>span {
+  color: #1f77b4 !important;
+}
+.tag.society>>>span {
+  color: #e377c2 !important;
+}
+.tag.sports>>>span {
+  color: #7f7f7f !important;
+}
+.tag.other>>>span {
+  color: #bcbd22 !important;
+}
+.author {
+  text-align: right;
+  padding-bottom: 10px;
+}
+.hidden {
+  overflow: hidden;
+}
+.more {
+  float: right;
+  color: #2d8cf0;
+  cursor: pointer;
+}
+.card {
+  margin-bottom: 15px;
+}
+.contentModal>>>.ivu-modal-body {
+  max-height: 400px;
+  overflow: auto;
+}
+.right >>>.ivu-spin {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: #fff;
+    display: flex;
+    z-index: 20;
+    justify-content: center;
+    padding-top: 200px;
 }
 </style>

@@ -20,9 +20,7 @@ let color = {
   'polity': '#1f77b4',
   'society': '#e377c2',
   'sports': '#7f7f7f',
-  'other': '#bcbd22',
-  8: '#17becf',
-  9: '#1f77b4'
+  'other': '#bcbd22'
 }
 let labels = {
   'civilization': '人文',

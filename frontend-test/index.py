@@ -3,6 +3,7 @@ from bottle import *
 import json, pickle
 from collections import defaultdict
 from get_words_connection import get_words_connection
+from search_engineer import search_engine
 
 # 跨域
 @route('/<:re:.*>', method='OPTIONS')
@@ -55,9 +56,6 @@ def getConnectedNodes():
         links.append((k,item))        
         if item not in nodes_with_type.keys():
           nodes_with_type[item] = label
-  print(list(nodes))
-  print(list(set(links)))
-  print(nodes_with_type)
   res = {}
   res['nodes'] = []
   res['links'] = []
@@ -72,6 +70,15 @@ def getConnectedNodes():
       'target': l[1]
     })
   response.headers['Content-type'] = 'application/json'
+  return json.dumps(res)
+
+# 通过关键词获取具体信息
+@route('/getInfoByKeyword', method='get')
+def getDetail():
+  keyword = request.query.keyword
+  label = str(request.query.label)
+  res = search_engine(keyword, './data/searchengineer/news_' + label +'_content.pk', './data/searchengineer/news_' + label + '_add_opinion.pk')
+  response.headers['Content-type'] = 'application/json; charset=utf-8'
   return json.dumps(res)
 
 # 静态文件
