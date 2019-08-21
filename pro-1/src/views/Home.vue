@@ -37,7 +37,6 @@ export default {
   mounted () {
     this.$emit('on-clear-search-key')
     this.$axios('http://localhost:31000/getAllInfo').then(res => {
-      console.log(res)
       this.initData = res.data
       res.data.forEach((item, index) => {
         this.nodesObj[item.id] = item
@@ -139,7 +138,6 @@ export default {
       })
       let maxSize = Math.max.apply(null, sizes)
       let minSize = Math.min.apply(null, sizes)
-      console.log(dataCurrent)
       let svg = d3.select(`.svg-${currentIndex}`).append('svg')
       svg.attr('width', width).attr('height', height)
 

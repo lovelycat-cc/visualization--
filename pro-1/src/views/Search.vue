@@ -66,6 +66,7 @@ export default {
   mounted () {
     if (this.$route.query.key) {
       this.spinShow = true
+      this.$emit('on-get-search-key')
       this.getConnectedWords(this.$route.query.key)
     } else {
       this.$Message.info('请在搜索框输入关键词进行搜索')

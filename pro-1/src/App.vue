@@ -29,7 +29,7 @@
         </div>
         <Card>
           <div style="min-height: calc(100vh - 230px);">
-            <router-view :key="$route.fullPath" @on-clear-search-key="clearSearchKey"/>
+            <router-view :key="$route.fullPath" @on-clear-search-key="clearSearchKey" @on-get-search-key="getSearchKey"/>
           </div>
         </Card>
       </Content>
@@ -62,9 +62,6 @@ export default {
   mounted () {
     this.searchKey = this.$route.query.key
   },
-  updated () {
-    this.searchKey = this.$route.query.key
-  },
   methods: {
     okModal () {
       this.helpModal = false
@@ -86,6 +83,9 @@ export default {
     },
     clearSearchKey () {
       this.searchKey = ''
+    },
+    getSearchKey () {
+      this.searchKey = this.$route.query.key
     }
   },
   computed: {
