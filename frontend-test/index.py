@@ -51,18 +51,22 @@ def getConnectedNodes():
       nodes.add(k)
       nodes.update(v)
       if k not in nodes_with_type.keys():
-        nodes_with_type[k] = label
+        nodes_with_type[k] = [label]
+      else:
+        nodes_with_type[k].append(label)
       for item in v:
         links.append((k,item))        
         if item not in nodes_with_type.keys():
-          nodes_with_type[item] = label
+          nodes_with_type[item] = [label]
+        else:
+          nodes_with_type[item].append(label)
   res = {}
   res['nodes'] = []
   res['links'] = []
   for n in list(nodes):
     res['nodes'].append({
       'id': n,
-      'group': nodes_with_type[n]
+      'group': list(set(nodes_with_type[n]))
     })
   for l in list(set(links)):
     res['links'].append({
@@ -76,15 +80,29 @@ def getConnectedNodes():
 @route('/getInfoByKeyword', method='get')
 def getDetail():
   keyword = request.query.keyword
-  label = str(request.query.label)
-  res = search_engine(keyword, './data/searchengineer/news_' + label +'_content.pk', './data/searchengineer/news_' + label + '_add_opinion.pk')
+  labels = request.query.label
+  page_size = int(request.query.page_size)
+  page_index = int(request.query.page_index) # start from 1
+  res = []
+  if labels == '-1':
+    labels = ['civilization', 'economy', 'education', 'military', 'polity', 'society', 'sports', 'other']
+  else:
+    labels = labels.split(',')
+  for (i, label) in enumerate(labels):
+    if label != 'polity':
+      res += search_engine(keyword, './data/searchengineer/news_' + label +'_content.pk', './data/searchengineer/news_' + label + '_add_opinion.pk')
+    if len(res) >= page_index * page_size:
+      break
+    print(i, label)
   response.headers['Content-type'] = 'application/json; charset=utf-8'
+  end = min(page_index * page_size, len(res))
+  res = res[(page_index - 1) * page_index:end]
   return json.dumps(res)
 
 # 静态文件
 @route('/static/img/<filename>')
 def send_image(filename):
-    return static_file(filename, root='./dist/static/img/')
+  return static_file(filename, root='./dist/static/img/')
 @route('/static/css/<filename>')
 def send_css(filename):
   return static_file(filename, root='./dist/static/css/')

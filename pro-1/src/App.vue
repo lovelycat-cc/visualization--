@@ -9,7 +9,10 @@
               <router-link to="/"><Icon type="ios-navigate"></Icon>首页</router-link>
             </MenuItem>
             <MenuItem name="2">
-              <router-link to="/searchPage" :class="{'router-link-exact-active': searchActive}"><Icon type="ios-keypad"></Icon>关键词搜索</router-link>
+              <router-link to="/searchPage" :class="{'router-link-exact-active': searchActive}"><Icon type="md-search"></Icon>关键词搜索</router-link>
+            </MenuItem>
+            <MenuItem name="2">
+              <router-link to="/newsList" :class="{'router-link-exact-active': newsListActive}"><Icon type="ios-keypad"></Icon>新闻列表</router-link>
             </MenuItem>
             <MenuItem name="3">
               <Icon type="md-help-circle" size="18" class="help-btn" @click="helpModal = true"></Icon>
@@ -23,9 +26,13 @@
             <BreadcrumbItem>WORDANCE</BreadcrumbItem>
             <BreadcrumbItem>{{ currentPage }}</BreadcrumbItem>
           </Breadcrumb>
-          <Input style="width:150px;" v-model="searchKey" placeholder="请输入关键词" @on-keyup.enter="goSearch">
-            <Icon type="ios-search" slot="suffix" class="search-btn" @click="goSearch"/>
-          </Input>
+          <div class="search-box">
+            <div class="keyword circle" v-if="searchActive"></div>
+            <span class="text" style="padding-right:10px" v-if="searchActive">关键词</span>
+            <Input style="width:150px" v-model="searchKey" placeholder="请输入关键词" @on-keyup.enter="goSearch">
+              <Icon type="ios-search" slot="suffix" class="search-btn" @click="goSearch"/>
+            </Input>
+          </div>
         </div>
         <Card>
           <div style="min-height: calc(100vh - 230px);">
@@ -74,12 +81,22 @@ export default {
         this.$Message.error('请输入搜索的关键词')
         return false
       }
-      this.$router.push({
-        path: '/searchPage',
-        query: {
-          key: this.searchKey
-        }
-      })
+      console.log(this.$route.path)
+      if (this.$route.path !== '/newsList') {
+        this.$router.push({
+          path: '/searchPage',
+          query: {
+            key: this.searchKey
+          }
+        })
+      } else {
+        this.$router.push({
+          path: '/newsList',
+          query: {
+            key: this.searchKey
+          }
+        })
+      }
     },
     clearSearchKey () {
       this.searchKey = ''
@@ -98,11 +115,17 @@ export default {
         case '/searchPage':
           res = '关键词搜索'
           break
+        case '/newsList':
+          res = '新闻列表'
+          break
       }
       return res
     },
     searchActive () {
       return this.$route.path.includes('/searchPage')
+    },
+    newsListActive () {
+      return this.$route.path.includes('/newsList')
     }
   }
 }
@@ -143,5 +166,34 @@ export default {
 }
 .layout >>> .ivu-menu-item a.router-link-exact-active {
   color: rgba(255,255,255) !important;
+}
+.layout >>>.ivu-layout-header {
+  min-width: 920px;
+}
+.layout .circle.keyword {
+  background: #2d8cf0;
+  width: 10px;
+  height:10px;
+  border-radius: 50%;
+  /* animation: keyword 1s ease infinite; */
+  margin-right: 10px;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+}
+@keyframes keyword {
+  0% {
+    width: 10px;
+    height: 10px;
+  }
+  50% {
+    width: 20px;
+    height: 20px;
+  }
+  100% {
+    width: 10px;
+    height: 10px;
+  }
 }
 </style>

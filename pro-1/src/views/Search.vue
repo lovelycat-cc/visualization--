@@ -7,22 +7,25 @@
       <p v-if="newsList.length === 0" class="tip">点击左侧点出现点的具体信息</p>
       <div v-if="newsList.length > 0">
         <div class ="tags hidden">
-          <Tag class="tag" :class="groupClicked">{{keyClicked}}</Tag>
-          <Tag class="tag" :class="groupClicked">{{labelsObj[groupClicked]}}</Tag>
-          <span class="more">>>更多文章</span>
+          <Tag class="tag" :class="groupClicked[0]">{{keyClicked}}</Tag>
+          <Tag class="tag" :class="groupClicked[0]">{{getLabels(groupClicked)}}</span></Tag>
+          <Button type="primary" ghost class="more" @click="moreNews">更多新闻</Button>
         </div>
         <div v-for="(item, index) in newsList" :key="index" class="card">
           <Card v-if="index < 2">
-            <p slot="title">{{ item.title}}</p>
+            <p slot="title" class="hidden">
+              {{ item.title}}
+              <span class="more" @click="showMoreContent(item)">
+                <span>more</span>
+                <svg t="1566372115510" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1113" width="200" height="200"><path d="M512 42.666667c258.133333 0 469.333333 211.2 469.333333 469.333333s-211.2 469.333333-469.333333 469.333333S42.666667 770.133333 42.666667 512 253.866667 42.666667 512 42.666667z m0 853.333333c211.2 0 384-172.8 384-384S723.2 128 512 128 128 300.8 128 512s172.8 384 384 384z" fill="#2d8cf0" p-id="1114"></path><path d="M512 448c-36.266667 0-64 27.733333-64 64s27.733333 64 64 64 64-27.733333 64-64-27.733333-64-64-64M725.333333 448c-36.266667 0-64 27.733333-64 64s27.733333 64 64 64 64-27.733333 64-64-27.733333-64-64-64M298.666667 448c-36.266667 0-64 27.733333-64 64s27.733333 64 64 64 64-27.733333 64-64-27.733333-64-64-64" fill="#2d8cf0" p-id="1115"></path></svg>
+              </span>
+            </p>
             <p class="author">{{item.source}}  {{item.author}}</p>
             <p v-for="(i,idx) in getOpinion(item.opinion)" :key="idx">
               <Alert v-if="idx < 4">{{i[0]}}: {{i[2]}}</Alert>
             </p>
             <p v-if="getOpinion(item.opinion).length === 0">
               <Alert type="warning">暂无观点内容</Alert>
-            </p>
-            <p class="hidden">
-              <span class="more" @click="showMoreContent(item)">>>更多内容</span>
             </p>
           </Card>
         </div>
@@ -33,6 +36,7 @@
     v-model="moreContentModal.show"
     :title="moreContentModal.title"
     @on-ok="okModal"
+    :width="800"
     :scollable="true"
     class="contentModal"
     @on-cancel="cancelModal">
@@ -60,7 +64,11 @@ export default {
       keyClicked: '',
       groupClicked: '',
       spinRightShow: false,
-      moreContentModal: {}
+      moreContentModal: {},
+      currentGroupList: [],
+      objRect: {},
+      initGroupList: [],
+      groupOfKeyWord: []
     }
   },
   mounted () {
@@ -69,6 +77,7 @@ export default {
       this.$emit('on-get-search-key')
       this.getConnectedWords(this.$route.query.key)
     } else {
+      this.$emit('on-clear-search-key')
       this.$Message.info('请在搜索框输入关键词进行搜索')
     }
   },
@@ -76,6 +85,16 @@ export default {
     getConnectedWords (keyword) {
       this.$axios.get(`http://localhost:31000/getNodesByKeyword?keyword=${keyword}`).then(res => {
         this.initData = res.data
+        let objRect = {}
+        res.data.nodes.forEach((d, index) => {
+          d.group.forEach((i, idx) => {
+            if (!objRect.hasOwnProperty(i)) {
+              objRect[i] = 1
+            }
+          })
+        })
+        let rectNodes = Object.keys(objRect)
+        this.currentGroupList = rectNodes.concat([])
         this.drawInit(res.data)
         res.data.nodes.forEach((item, index) => {
           this.nodesObj[item.id] = item
@@ -85,8 +104,14 @@ export default {
     getDetail (keyword, label) {
       this.spinRightShow = true
       this.keyClicked = keyword
-      this.groupClicked = label
-      this.$axios.get(`http://localhost:31000/getInfoByKeyword?keyword=${keyword}&label=${label}`).then(res => {
+      let index = label.indexOf('other')
+      if (index !== -1) {
+        label.splice(index, 1)
+        this.groupClicked = label.concat(['other']) // 把其他放到最后面
+      } else {
+        this.groupClicked = label.concat([])
+      }
+      this.$axios.get(`http://localhost:31000/getInfoByKeyword?keyword=${keyword}&label=${this.groupClicked}&page_size=2&page_index=1`).then(res => {
         this.newsList = res.data
         this.spinRightShow = false
       })
@@ -96,10 +121,18 @@ export default {
         return item[2] && item[2].length >= 4
       })
     },
+    moreNews () {
+      this.$router.push({
+        path: '/newsList',
+        query: {
+          key: this.keyClicked
+        }
+      })
+    },
     showMoreContent (item) {
       this.$set(this.moreContentModal, 'show', true)
       this.$set(this.moreContentModal, 'title', item.title)
-      this.$set(this.moreContentModal, 'content', item.content.replace(/\\n/g, '<br>'))
+      this.$set(this.moreContentModal, 'content', item.content.trim().replace(/\\n/g, '<br>'))
     },
     okModal () {
       this.moreContentModal = {}
@@ -109,7 +142,26 @@ export default {
       this.moreContentModal = {}
       this.$set(this.moreContentModal, 'show', false)
     },
+    getLabels (labels) {
+      let res = labels.map((item, index) => {
+        return this.labelsObj[item]
+      })
+      return res.join(',')
+    },
+    getInitData () {
+      this.initData.nodes.forEach((d, index) => {
+        d.group.forEach((i, idx) => {
+          if (!this.objRect.hasOwnProperty(i)) {
+            this.objRect[i] = 1
+          }
+        })
+      })
+      let rectNodes = Object.keys(this.objRect)
+      this.currentGroupList = rectNodes.concat([])
+      this.initGroupList = rectNodes.concat([])
+    },
     drawInit (data) {
+      this.getInitData()
       this.draw(data, true)
       this.drawRect(data)
     },
@@ -165,8 +217,21 @@ export default {
         .data(nodes)
         .join('circle')
         .attr('r', 5)
+        .attr('class', function (d, i) {
+          if (d.id === _self_.$route.query.key) {
+            _self_.groupOfKeyWord = d.group
+            return 'keyword'
+          }
+        })
         .attr('fill', function (d) {
-          return _self_.scale[d.group]
+          let color = ''
+          for (let i = 0; i < d.group.length; i++) {
+            if (_self_.currentGroupList.indexOf(d.group[i]) !== -1) {
+              color = d.group[i]
+              break
+            }
+          }
+          return _self_.scale[color]
         })
         .on('click', function (d) {
           _self_.getDetail(d.id, d.group)
@@ -185,20 +250,36 @@ export default {
           .attr('cy', d => d.y)
       })
       this.spinShow = false
+      this.getDetail(this.$route.query.key, this.groupOfKeyWord)
+    },
+    redraw (rectNodes, objRect) {
+      let currentNodes = rectNodes.filter((item, index) => {
+        return objRect[item] === 1
+      })
+      this.currentGroupList = currentNodes.concat([])
+      let data = this.initData.nodes.filter((item, index) => {
+        let groupCurrent = item.group.filter((i, idx) => {
+          return currentNodes.indexOf(i) !== -1
+        })
+        return groupCurrent.length > 0
+      })
+      let links = this.initData.links.filter((item, index) => {
+        let sourceGroup = this.nodesObj[item.source.id].group.filter((i, idx) => {
+          return currentNodes.indexOf(i) !== -1
+        })
+        let targetGroup = this.nodesObj[item.target.id].group.filter((i, idx) => {
+          return currentNodes.indexOf(i) !== -1
+        })
+        return sourceGroup.length > 0 && targetGroup.length > 0
+      })
+      d3.select('.links').remove()
+      d3.select('.nodes').remove()
+      d3.select('.labels').remove()
+      this.draw({ links: links, nodes: data })
+      this.drawRect({ nodes: data })
     },
     drawRect (data) {
       let _self_ = this
-      let objRect = {}
-
-      const rectNodes = data.nodes.map((d, index) => {
-        if (objRect.hasOwnProperty(d.group)) {
-          return -1
-        } else {
-          objRect[d.group] = 1
-          return d.group
-        }
-      }).filter((value) => value !== -1)
-
       const svg = d3.select('svg')
 
       svg.append('g')
@@ -206,47 +287,19 @@ export default {
         .attr('stroke', '#fff')
         .attr('stroke-width', 1.5)
         .selectAll('g')
-        .data(rectNodes)
+        .data(_self_.initGroupList)
         .join('g')
         .attr('transform', function (d, i) {
           return `translate(${10}, ${i * 30})`
         })
         .style('cursor', 'pointer')
         .on('click', function (d, i) {
-          if (objRect[d] === 1) { // 此时为选中状态
-            d3.select(this).select('rect').style('fill', '#ddd')
-            d3.select(this).select('text').style('fill', '#333')
-            objRect[d] = -1
-            let currentNodes = rectNodes.filter((item, index) => {
-              return objRect[item] === 1
-            })
-            let data = _self_.initData.nodes.filter((item, index) => {
-              return currentNodes.indexOf(item.group) !== -1
-            })
-            let links = _self_.initData.links.filter((item, index) => {
-              return currentNodes.indexOf(_self_.nodesObj[item.source.id].group) !== -1 && currentNodes.indexOf(_self_.nodesObj[item.target.id].group) !== -1
-            })
-
-            d3.select('.links').remove()
-            d3.select('.nodes').remove()
-
-            _self_.draw({ links: links, nodes: data })
+          if (_self_.objRect[d] === 1) { // 此时为选中状态
+            _self_.objRect[d] = -1
+            _self_.redraw(_self_.initGroupList, _self_.objRect)
           } else {
-            objRect[d] = 1
-            d3.select(this).select('rect').style('fill', _self_.scale[d])
-            d3.select(this).select('text').style('fill', '#fff')
-            let currentNodes = rectNodes.filter((item, index) => {
-              return objRect[item] === 1
-            })
-            let data = _self_.initData.nodes.filter((item, index) => {
-              return currentNodes.indexOf(item.group) !== -1
-            })
-            let links = _self_.initData.links.filter((item, index) => {
-              return currentNodes.indexOf(_self_.nodesObj[item.source.id].group) !== -1 && currentNodes.indexOf(_self_.nodesObj[item.target.id].group) !== -1
-            })
-            d3.select('.links').remove()
-            d3.select('.nodes').remove()
-            _self_.draw({ links: links, nodes: data })
+            _self_.objRect[d] = 1
+            _self_.redraw(_self_.initGroupList, _self_.objRect)
           }
         })
 
@@ -259,7 +312,11 @@ export default {
         .attr('rx', 3)
         .attr('ry', 3)
         .attr('fill', function (d) {
-          return _self_.scale[d]
+          if (_self_.objRect[d] === 1) {
+            return _self_.scale[d]
+          } else {
+            return '#ddd'
+          }
         })
 
       svg.select('.labels')
@@ -273,7 +330,13 @@ export default {
           return `${10}px`
         })
         .style('background', 'transparent')
-        .style('fill', '#fff')
+        .style('fill', function (d) {
+          if (_self_.objRect[d] === 1) {
+            return '#fff'
+          } else {
+            return '#333'
+          }
+        })
         .style('font-family', 'Impact')
         .attr('text-anchor', 'middle')
         .attr('transform', `translate(${15}, ${11})`)
@@ -289,6 +352,12 @@ export default {
 }
 .left {
   width: 50%
+}
+.left >>> circle.keyword {
+  fill: #2d8cf0;
+  stroke: #2d8cf0;
+  stroke-width: 20px;
+  animation: keyword 1s ease infinite;
 }
 .right {
   width: 50%;
@@ -338,6 +407,13 @@ export default {
   color: #2d8cf0;
   cursor: pointer;
 }
+.right>>>.ivu-card-head p span {
+  vertical-align: top;
+}
+.more svg {
+  width: 20px;
+  height: 20px;
+}
 .card {
   margin-bottom: 15px;
 }
@@ -354,5 +430,16 @@ export default {
     z-index: 20;
     justify-content: center;
     padding-top: 200px;
+}
+@keyframes keyword {
+  0% {
+    stroke-width: 10px;
+  }
+  50% {
+    stroke-width: 20px;
+  }
+  100% {
+    stroke-width: 10px;
+  }
 }
 </style>

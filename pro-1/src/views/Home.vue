@@ -188,6 +188,7 @@ export default {
           return d.text
         })
         .on('click', function (d, i) {
+          console.log('wordclick')
           _self_.$router.push({
             path: '/searchPage',
             query: {
