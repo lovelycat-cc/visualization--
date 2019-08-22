@@ -162,5 +162,8 @@ export default {
 .card-item>>>.ivu-card-bordered {
     height: 400px;
     overflow: auto;
+    background-image: url('../assets/water_mark.png');
+    background-position: right bottom;
+    background-repeat: no-repeat;
 }
 </style>
