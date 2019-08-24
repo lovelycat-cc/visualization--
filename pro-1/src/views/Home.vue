@@ -78,12 +78,12 @@ export default {
         .data(_self_.groupList)
         .join('g')
         .attr('transform', function (d, i) { return `translate(${i * 70}, ${0})` })
-        .style('cursor', 'pointer')
-        .on('mouseenter', function (d, i) {
-          if (_self_.carousel !== i) {
-            _self_.carousel = i
-          }
-        })
+        // .style('cursor', 'pointer')
+        // .on('mouseenter', function (d, i) {
+        //   if (_self_.carousel !== i) {
+        //     _self_.carousel = i
+        //   }
+        // })
       svg
         .select('.labels')
         .selectAll('g')
