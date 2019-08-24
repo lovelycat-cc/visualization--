@@ -7,7 +7,7 @@
       <p v-if="(initData.nodes && initData.nodes.length === 0) || initData.nodes === undefined" class="tip">点击左侧点出现点的具体信息, 没有出现力导图则请输入适当关键词进行搜索</p>
       <div class="tag-wrap">
         <div class ="tags hidden">
-          <Tag class="tag" v-if="keyClicked"></Tag>{{currentLabelIndex}}
+          <Tag class="tag" v-if="keyClicked"></Tag>
           <Tag
             class="tag"
             v-for="(item, index) in groupClicked"
