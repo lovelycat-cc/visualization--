@@ -86,9 +86,14 @@ def getDetail():
   res = []
   res += search_engine(keyword, './data/searchengineer/news_' + label +'_content.pk', './data/searchengineer/news_' + label + '_add_opinion.pk')
   response.headers['Content-type'] = 'application/json; charset=utf-8'
+  length = len(res)
   end = min(page_index * page_size, len(res))
-  res = res[(page_index - 1) * page_index:end]
-  return json.dumps(res)
+  res = res[(page_index - 1) * page_index:end]  
+  res_json = {
+    'total': length,
+    'data': res
+  }
+  return json.dumps(res_json)
 
 # 静态文件
 @route('/static/img/<filename>')

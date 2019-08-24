@@ -16,9 +16,8 @@
           <span :class="{current: index === currentLabelIndex}">{{labelsObj[item]}}</span>
         </Tag>
       </div>
-      <div class="btns">
-        <Button type="primary" @click="prev" ghost :disabled="btnDisable">上一页</Button>
-        <Button type="primary" @click="next" ghost :disabled="btnDisable">下一页</Button>
+      <div class="btns" v-if="page.total > 0">
+        <Page :current="page.index" :total="page.total" simple show-total @on-change="pageChange"/>
       </div>
     </div>
     <div v-if="newsList.length > 0" style="width:100%;">
@@ -43,6 +42,7 @@
         </Col>
       </Row>
     </div>
+    <div v-if="newsList.length === 0 && $route.query.key" class="tip">没有关键词{{$route.query.key}}对应{{labelsObj[labels[currentLabelIndex]]}}板块内容</div>
   </div>
   <Modal
     v-model="moreContentModal.show"
@@ -54,7 +54,7 @@
     @on-cancel="cancelModal">
     <div v-html="moreContentModal.content"></div>
     <div slot="footer">
-      <Button type="primary">确定</Button>
+      <Button type="primary" @click="okModal">确定</Button>
     </div>
   </Modal>
   <Spin size="large" fix v-if="spinShow"></Spin>
@@ -72,7 +72,8 @@ export default {
       moreContentModal: {},
       page: {
         size: 10,
-        index: 1
+        index: 1,
+        total: 0
       },
       labels: ['civilization', 'economy', 'education', 'military', 'polity', 'society', 'sports', 'other'],
       currentLabelIndex: 0
@@ -81,6 +82,9 @@ export default {
   mounted () {
     if (this.$route.query.key) {
       this.$emit('on-get-search-key')
+      if (this.$route.query.label && this.labels.indexOf(this.$route.query.label) !== -1) {
+        this.currentLabelIndex = this.labels.indexOf(this.$route.query.label)
+      }
       this.getDetail(this.$route.query.key, this.labels[this.currentLabelIndex], this.page.index, this.page.size, 'spinShow')
     } else {
       this.$emit('on-clear-search-key')
@@ -91,7 +95,8 @@ export default {
     getDetail (keyword, label, index, size, disableKey) {
       this[disableKey] = true
       this.$axios.get(`/getInfoByKeyword?keyword=${keyword.toLowerCase()}&label=${label}&page_size=${size}&page_index=${index}`).then(res => {
-        this.newsList = res.data
+        this.newsList = res.data.data
+        this.page.total = res.data.total
         this[disableKey] = false
       })
     },
@@ -117,25 +122,8 @@ export default {
       this.moreContentModal = {}
       this.$set(this.moreContentModal, 'show', false)
     },
-    prev () {
-      if (this.page.index === 1) {
-        this.$Message.error('没有上一页')
-        return false
-      }
-      this.page.index--
-      this.getDetail(this.$route.query.key, this.labels[this.currentLabelIndex], this.page.index, this.page.size, 'btnDisable')
-    },
-    next () {
-      this.btnDisable = true
-      this.$axios.get(`/getInfoByKeyword?keyword=${this.$route.query.key.toLowerCase()}&label=${this.labels[this.currentLabelIndex]}&page_size=${10}&page_index=${this.page.index + 1}`).then(res => {
-        this.btnDisable = false
-        if (res.data.length > 0) {
-          this.newsList = res.data
-          this.page.index++
-        } else {
-          this.$Message.error('没有下一页了')
-        }
-      })
+    pageChange () {
+      this.getDetail(this.$route.query.key, this.labels[this.currentLabelIndex], this.page.index, this.page.size, 'spinShow')
     }
   }
 }
@@ -241,5 +229,15 @@ export default {
 }
 .search >>> .ivu-tag:not(.ivu-tag-border):not(.ivu-tag-dot):not(.ivu-tag-checked) {
   border: 1px solid #e8eaec;
+}
+.search >>> .ivu-page-simple .ivu-page-simple-pager input {
+  width: 50px;
+}
+.tip {
+  text-align: center;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
 }
 </style>
