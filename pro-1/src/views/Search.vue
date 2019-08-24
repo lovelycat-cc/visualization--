@@ -7,7 +7,7 @@
       <p v-if="(initData.nodes && initData.nodes.length === 0) || initData.nodes === undefined" class="tip">点击左侧点出现点的具体信息, 没有出现力导图则请输入适当关键词进行搜索</p>
       <div class="tag-wrap">
         <div class ="tags hidden">
-          <Tag class="tag" v-if="keyClicked">{{keyClicked}}</Tag>
+          <Tag class="tag" v-if="keyClicked"></Tag>{{currentLabelIndex}}
           <Tag
             class="tag"
             v-for="(item, index) in groupClicked"
@@ -81,7 +81,8 @@ export default {
       objRect: {},
       initGroupList: [],
       groupOfKeyWord: [],
-      currentLabelIndex: 0
+      currentLabelIndex: 0,
+      init: 0
     }
   },
   mounted () {
@@ -127,6 +128,10 @@ export default {
         this.groupClicked = label.concat(['other']) // 把其他放到最后面
       } else {
         this.groupClicked = label.concat([])
+      }
+      if (this.groupClicked.indexOf(this.$route.query.label) !== -1 && this.init === 0) {
+        this.currentLabelIndex = this.groupClicked.indexOf(this.$route.query.label)
+        this.init++
       }
       this.$axios.get(`/getInfoByKeyword?keyword=${keyword.toLowerCase()}&label=${this.groupClicked[this.currentLabelIndex]}&page_size=2&page_index=1`).then(res => {
         this.newsList = res.data.data
@@ -236,7 +241,7 @@ export default {
         .join('circle')
         .attr('r', 5)
         .attr('class', function (d, i) {
-          if (d.id === _self_.$route.query.key) {
+          if (d.id.toLowerCase() === _self_.$route.query.key.toLowerCase()) {
             _self_.groupOfKeyWord = d.group
             return 'keyword'
           }

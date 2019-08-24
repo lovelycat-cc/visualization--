@@ -78,12 +78,12 @@ export default {
         .data(_self_.groupList)
         .join('g')
         .attr('transform', function (d, i) { return `translate(${i * 70}, ${0})` })
-        // .style('cursor', 'pointer')
-        // .on('mouseenter', function (d, i) {
-        //   if (_self_.carousel !== i) {
-        //     _self_.carousel = i
-        //   }
-        // })
+        .style('cursor', 'pointer')
+        .on('click', function (d, i) {
+          if (_self_.carousel !== i) {
+            _self_.carousel = i
+          }
+        })
       svg
         .select('.labels')
         .selectAll('g')
@@ -188,11 +188,12 @@ export default {
           return d.text
         })
         .on('click', function (d, i) {
-          console.log('wordclick')
+          console.log('wordclick', _self_.groupList[_self_.carousel])
           _self_.$router.push({
             path: '/searchPage',
             query: {
-              key: d.text
+              key: d.text,
+              label: _self_.groupList[_self_.carousel]
             }
           })
         })

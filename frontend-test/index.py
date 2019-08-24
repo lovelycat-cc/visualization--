@@ -111,6 +111,10 @@ def send_urlconfig(filename):
 @route('/static/fonts/<filename>')
 def send_fonts(filename):
   return static_file(filename, root='./dist/static/fonts/')
+@route('/favicon.ico')
+def send_ico():
+  return static_file('favicon.ico', root='./')
+
 
 @route('/')
 def index():

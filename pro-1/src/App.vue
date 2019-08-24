@@ -3,7 +3,7 @@
     <Layout>
       <Header>
         <Menu mode="horizontal" theme="dark" active-name="1">
-          <div class="layout-logo"><img src="./assets/logo.png"></div>
+          <div class="layout-logo"><img src="./assets/logo.png" style="width:55px;"><img src="./assets/logo-2.png"></div>
           <div class="layout-nav">
             <MenuItem name="1">
               <router-link to="/"><Icon type="ios-navigate"></Icon>首页</router-link>
