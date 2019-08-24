@@ -11,7 +11,7 @@ def get_words_connection(keywords, word2vec_filepath):
     # 第一轮查找
     for word in root:
         try:
-            new_expanding = get_word_list(news_sports_word2vec.most_similar(word, topn=8))
+            new_expanding = get_word_list(news_sports_word2vec.most_similar(word, topn=5))
         except KeyError:
             print('您输入的关键词 "%s" 不存在' % word)
             return {}
@@ -19,7 +19,7 @@ def get_words_connection(keywords, word2vec_filepath):
         unseen += new_expanding
     # 第二轮
     for word in unseen:
-        new_expanding = get_word_list(news_sports_word2vec.most_similar(word, topn=8))
+        new_expanding = get_word_list(news_sports_word2vec.most_similar(word, topn=5))
         seen[word].update(new_expanding)
     return seen
 

@@ -9,7 +9,8 @@ import 'iview/dist/styles/iview.css'
 Vue.use(iView)
 
 Vue.prototype.$axios = axios
-
+// eslint-disable-next-line
+axios.defaults.baseURL = SERVICE_URL
 Vue.config.productionTip = false
 
 let color = {

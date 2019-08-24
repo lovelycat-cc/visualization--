@@ -4,13 +4,25 @@
     <div class="left"></div>
     <div class="right">
     <Spin size="large" v-if="spinRightShow"></Spin>
-      <p v-if="newsList.length === 0" class="tip">点击左侧点出现点的具体信息</p>
-      <div v-if="newsList.length > 0">
+      <p v-if="(initData.nodes && initData.nodes.length === 0) || initData.nodes === undefined" class="tip">点击左侧点出现点的具体信息, 没有出现力导图则请输入适当关键词进行搜索</p>
+      <div class="tag-wrap">
         <div class ="tags hidden">
-          <Tag class="tag" :class="groupClicked[0]">{{keyClicked}}</Tag>
-          <Tag class="tag" :class="groupClicked[0]">{{getLabels(groupClicked)}}</span></Tag>
+          <Tag class="tag">{{keyClicked}}</Tag>
+          <Tag
+            class="tag"
+            v-for="(item, index) in groupClicked"
+            :key="index"
+            :class="item"
+            :name="item"
+            :checkable="index !== currentLabelIndex"
+            :checked="index === currentLabelIndex"
+            @on-change="changeLabelIndex">
+            <span :class="{current: index === currentLabelIndex}">{{labelsObj[item]}}</span>
+          </Tag>
           <Button type="primary" ghost class="more" @click="moreNews">更多新闻</Button>
         </div>
+      </div>
+      <div v-if="newsList.length > 0">
         <div v-for="(item, index) in newsList" :key="index" class="card">
           <Card v-if="index < 2">
             <p slot="title" class="hidden">
@@ -42,7 +54,7 @@
     @on-cancel="cancelModal">
     <div v-html="moreContentModal.content"></div>
     <div slot="footer">
-      <Button type="primary">确定</Button>
+      <Button type="primary" @click="okModal">确定</Button>
     </div>
   </Modal>
   <Spin size="large" fix v-if="spinShow"></Spin>
@@ -68,7 +80,8 @@ export default {
       currentGroupList: [],
       objRect: {},
       initGroupList: [],
-      groupOfKeyWord: []
+      groupOfKeyWord: [],
+      currentLabelIndex: 0
     }
   },
   mounted () {
@@ -83,7 +96,7 @@ export default {
   },
   methods: {
     getConnectedWords (keyword) {
-      this.$axios.get(`http://localhost:31000/getNodesByKeyword?keyword=${keyword}`).then(res => {
+      this.$axios.get(`/getNodesByKeyword?keyword=${keyword}`).then(res => {
         this.initData = res.data
         let objRect = {}
         res.data.nodes.forEach((d, index) => {
@@ -101,6 +114,10 @@ export default {
         })
       })
     },
+    changeLabelIndex (checked, name) {
+      this.currentLabelIndex = this.groupClicked.indexOf(name)
+      this.getDetail(this.$route.query.key, this.groupClicked)
+    },
     getDetail (keyword, label) {
       this.spinRightShow = true
       this.keyClicked = keyword
@@ -111,7 +128,7 @@ export default {
       } else {
         this.groupClicked = label.concat([])
       }
-      this.$axios.get(`http://localhost:31000/getInfoByKeyword?keyword=${keyword}&label=${this.groupClicked}&page_size=2&page_index=1`).then(res => {
+      this.$axios.get(`/getInfoByKeyword?keyword=${keyword.toLowerCase()}&label=${this.groupClicked[this.currentLabelIndex]}&page_size=2&page_index=1`).then(res => {
         this.newsList = res.data
         this.spinRightShow = false
       })
@@ -250,7 +267,9 @@ export default {
           .attr('cy', d => d.y)
       })
       this.spinShow = false
-      this.getDetail(this.$route.query.key, this.groupOfKeyWord)
+      if (this.groupOfKeyWord.length > 0) {
+        this.getDetail(this.$route.query.key, this.groupOfKeyWord)
+      }
     },
     redraw (rectNodes, objRect) {
       let currentNodes = rectNodes.filter((item, index) => {
@@ -367,33 +386,67 @@ export default {
 }
 .tip {
   text-align: center;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate3d(-50%, -50%, 0);
 }
 .tags {
   margin-bottom: 10px
 }
 .tag.civilization>>>span {
-  color: #ff7f0e !important;
+  color: #ff7f0e;
 }
 .tag.economy>>>span {
-  color: #2ca02c !important;
+  color: #2ca02c;
 }
 .tag.education>>>span {
-  color: #d62728 !important;
+  color: #d62728;
 }
 .tag.military>>>span {
-  color: #9467bd !important;
+  color: #9467bd;
 }
 .tag.polity>>>span {
-  color: #1f77b4 !important;
+  color: #1f77b4;
 }
 .tag.society>>>span {
-  color: #e377c2 !important;
+  color: #e377c2;
 }
 .tag.sports>>>span {
-  color: #7f7f7f !important;
+  color: #7f7f7f;
 }
 .tag.other>>>span {
-  color: #bcbd22 !important;
+  color: #bcbd22;
+}
+.tag.ivu-tag-checked.civilization {
+  background: #ff7f0e !important;
+}
+.tag.ivu-tag-checked.economy {
+  background: #2ca02c !important;
+}
+.tag.ivu-tag-checked.education {
+  background: #d62728 !important;
+}
+.tag.ivu-tag-checked.military {
+  background: #9467bd !important;
+}
+.tag.ivu-tag-checked.polity {
+  background: #1f77b4 !important;
+}
+.tag.ivu-tag-checked.society {
+  background: #e377c2 !important;
+}
+.tag.ivu-tag-checked.sports {
+  background: #7f7f7f !important;
+}
+.tag.ivu-tag-checked.other {
+  background: #bcbd22 !important;
+}
+.tag.ivu-tag-checked span {
+  color: #ffffff !important;
+}
+.search >>> .ivu-tag:not(.ivu-tag-border):not(.ivu-tag-dot):not(.ivu-tag-checked) {
+  border: 1px solid #e8eaec;
 }
 .author {
   text-align: right;

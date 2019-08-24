@@ -1,15 +1,27 @@
 <template>
 <div>
   <div class="search content">
-    <div v-if="newsList.length > 0">
+    <div class="tag-wrap" v-if="$route.query.key">
       <div class ="tags hidden">
         <Tag class="tag">{{$route.query.key}}</Tag>
-        <!-- <Tag class="tag" :class="groupClicked[0]">{{}}</span></Tag> -->
-        <div class="btns">
-          <Button type="primary" @click="prev" ghost :disabled="btnDisable">上一页</Button>
-          <Button type="primary" @click="next" ghost :disabled="btnDisable">下一页</Button>
-        </div>
+        <Tag
+          class="tag"
+          v-for="(item, index) in labels"
+          :key="index"
+          :class="item"
+          :name="item"
+          :checkable="index !== currentLabelIndex"
+          :checked="index === currentLabelIndex"
+          @on-change="changeLabelIndex">
+          <span :class="{current: index === currentLabelIndex}">{{labelsObj[item]}}</span>
+        </Tag>
       </div>
+      <div class="btns">
+        <Button type="primary" @click="prev" ghost :disabled="btnDisable">上一页</Button>
+        <Button type="primary" @click="next" ghost :disabled="btnDisable">下一页</Button>
+      </div>
+    </div>
+    <div v-if="newsList.length > 0" style="width:100%;">
       <Row :gutter="20">
         <Col v-for="(item, index) in newsList" :key="index" class="card card-item" span="12">
           <Card>
@@ -61,13 +73,15 @@ export default {
       page: {
         size: 10,
         index: 1
-      }
+      },
+      labels: ['civilization', 'economy', 'education', 'military', 'polity', 'society', 'sports', 'other'],
+      currentLabelIndex: 0
     }
   },
   mounted () {
     if (this.$route.query.key) {
       this.$emit('on-get-search-key')
-      this.getDetail(this.$route.query.key, -1, this.page.index, this.page.size, 'spinShow')
+      this.getDetail(this.$route.query.key, this.labels[this.currentLabelIndex], this.page.index, this.page.size, 'spinShow')
     } else {
       this.$emit('on-clear-search-key')
       this.$Message.info('请在搜索框输入关键词进行搜索')
@@ -76,7 +90,7 @@ export default {
   methods: {
     getDetail (keyword, label, index, size, disableKey) {
       this[disableKey] = true
-      this.$axios.get(`http://localhost:31000/getInfoByKeyword?keyword=${keyword}&label=${label}&page_size=${size}&page_index=${index}`).then(res => {
+      this.$axios.get(`/getInfoByKeyword?keyword=${keyword.toLowerCase()}&label=${label}&page_size=${size}&page_index=${index}`).then(res => {
         this.newsList = res.data
         this[disableKey] = false
       })
@@ -85,6 +99,10 @@ export default {
       return opinions.filter((item, index) => {
         return item[2] && item[2].length >= 4
       })
+    },
+    changeLabelIndex (checked, name) {
+      this.currentLabelIndex = this.labels.indexOf(name)
+      this.getDetail(this.$route.query.key, this.labels[this.currentLabelIndex], this.page.index, this.page.size, 'spinShow')
     },
     showMoreContent (item) {
       this.$set(this.moreContentModal, 'show', true)
@@ -105,11 +123,11 @@ export default {
         return false
       }
       this.page.index--
-      this.getDetail(this.$route.query.key, -1, this.page.index, this.page.size, 'btnDisable')
+      this.getDetail(this.$route.query.key, this.labels[this.currentLabelIndex], this.page.index, this.page.size, 'btnDisable')
     },
     next () {
       this.btnDisable = true
-      this.$axios.get(`http://localhost:31000/getInfoByKeyword?keyword=${this.$route.query.key}&label=${-1}&page_size=${10}&page_index=${this.page.index + 1}`).then(res => {
+      this.$axios.get(`/getInfoByKeyword?keyword=${this.$route.query.key.toLowerCase()}&label=${this.labels[this.currentLabelIndex]}&page_size=${10}&page_index=${this.page.index + 1}`).then(res => {
         this.btnDisable = false
         if (res.data.length > 0) {
           this.newsList = res.data
@@ -125,13 +143,17 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.content {
-  display: flex;
-}
 .tags {
-  margin-bottom: 10px;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.tag-wrap {
+  width: 100%;
   display: flex;
   justify-content: space-between;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 .author {
   text-align: right;
@@ -165,5 +187,59 @@ export default {
     background-image: url('../assets/water_mark.png');
     background-position: right bottom;
     background-repeat: no-repeat;
+}
+.tag.ivu-tag-checked.civilization {
+  background: #ff7f0e !important;
+}
+.tag.ivu-tag-checked.economy {
+  background: #2ca02c !important;
+}
+.tag.ivu-tag-checked.education {
+  background: #d62728 !important;
+}
+.tag.ivu-tag-checked.military {
+  background: #9467bd !important;
+}
+.tag.ivu-tag-checked.polity {
+  background: #1f77b4 !important;
+}
+.tag.ivu-tag-checked.society {
+  background: #e377c2 !important;
+}
+.tag.ivu-tag-checked.sports {
+  background: #7f7f7f !important;
+}
+.tag.ivu-tag-checked.other {
+  background: #bcbd22 !important;
+}
+.tag.ivu-tag-checked span {
+  color: #ffffff !important;
+}
+.tag.civilization>>>span {
+  color: #ff7f0e;
+}
+.tag.economy>>>span {
+  color: #2ca02c;
+}
+.tag.education>>>span {
+  color: #d62728;
+}
+.tag.military>>>span {
+  color: #9467bd;
+}
+.tag.polity>>>span {
+  color: #1f77b4;
+}
+.tag.society>>>span {
+  color: #e377c2;
+}
+.tag.sports>>>span {
+  color: #7f7f7f;
+}
+.tag.other>>>span {
+  color: #bcbd22;
+}
+.search >>> .ivu-tag:not(.ivu-tag-border):not(.ivu-tag-dot):not(.ivu-tag-checked) {
+  border: 1px solid #e8eaec;
 }
 </style>

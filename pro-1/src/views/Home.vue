@@ -36,7 +36,7 @@ export default {
   },
   mounted () {
     this.$emit('on-clear-search-key')
-    this.$axios('http://localhost:31000/getAllInfo').then(res => {
+    this.$axios('/getAllInfo').then(res => {
       this.initData = res.data
       res.data.forEach((item, index) => {
         this.nodesObj[item.id] = item

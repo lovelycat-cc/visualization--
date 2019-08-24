@@ -19,7 +19,7 @@ def get_X(content_filepath):
 
 def search_engine(query, content_filepath, news_add_opinion_filepath):
     global vectorized
-    vectorized = TfidfVectorizer()
+    vectorized = TfidfVectorizer(max_features=40000)
 
     # 得到tfidf矩阵
     X = get_X(content_filepath)

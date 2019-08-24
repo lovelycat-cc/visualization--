@@ -80,20 +80,11 @@ def getConnectedNodes():
 @route('/getInfoByKeyword', method='get')
 def getDetail():
   keyword = request.query.keyword
-  labels = request.query.label
+  label = request.query.label
   page_size = int(request.query.page_size)
   page_index = int(request.query.page_index) # start from 1
   res = []
-  if labels == '-1':
-    labels = ['civilization', 'economy', 'education', 'military', 'polity', 'society', 'sports', 'other']
-  else:
-    labels = labels.split(',')
-  for (i, label) in enumerate(labels):
-    if label != 'polity':
-      res += search_engine(keyword, './data/searchengineer/news_' + label +'_content.pk', './data/searchengineer/news_' + label + '_add_opinion.pk')
-    if len(res) >= page_index * page_size:
-      break
-    print(i, label)
+  res += search_engine(keyword, './data/searchengineer/news_' + label +'_content.pk', './data/searchengineer/news_' + label + '_add_opinion.pk')
   response.headers['Content-type'] = 'application/json; charset=utf-8'
   end = min(page_index * page_size, len(res))
   res = res[(page_index - 1) * page_index:end]
@@ -109,6 +100,9 @@ def send_css(filename):
 @route('/static/js/<filename>')
 def send_js(filename):
   return static_file(filename, root='./dist/static/js/')
+@route('/static/<filename>')
+def send_urlconfig(filename):
+  return static_file(filename, root='./dist/static/')
 @route('/static/fonts/<filename>')
 def send_fonts(filename):
   return static_file(filename, root='./dist/static/fonts/')
