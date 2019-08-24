@@ -55,7 +55,7 @@
         <p>- 关键词搜索页点更多文章可以进入新闻列表页</p>
         <p>- 也可直接进入新闻列表页，输入关键词，查看关键词对应的各类型文章，切换类型，可以看到不同文章。</p>
         <div slot="footer">
-          <Button type="primary">确定</Button>
+          <Button type="primary" @click="okModal">确定</Button>
         </div>
     </Modal>
   </div>
