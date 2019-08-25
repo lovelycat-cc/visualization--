@@ -2,11 +2,10 @@ if test $2 = 'nobuild'
 then
 	echo $2
 else
-	# npm run build
-	# rm -rf ../frontend-test/dist/*
-	# cp -r dist/* ../frontend-test/dist/
+	npm run build
 	echo 'build'
-echo $2
+rm -rf ../frontend-test/dist/*
+cp -r dist/* ../frontend-test/dist/
 fi
 cd ../
 git add .
