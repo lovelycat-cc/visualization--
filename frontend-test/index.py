@@ -46,7 +46,10 @@ def getConnectedNodes():
   links = []
   label_list = ['civilization', 'economy', 'education', 'military', 'polity', 'society', 'sports', 'other']
   for (index, label) in enumerate(label_list):
-    words_dict, root = get_words_connection(keyword, './data/forcegraph/news_' + label + '_word2vec.w2v')
+    try:
+      words_dict, root = get_words_connection(keyword, './data/forcegraph/news_' + label + '_word2vec.w2v')
+    except ValueError:
+      continue
     for (k, v) in words_dict.items():
       nodes.add(k)
       nodes.update(v)
