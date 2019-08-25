@@ -1,4 +1,4 @@
-if test $2 -eq 0
+if [$2 = 'nobuild']
 then
 	echo $2
 else
