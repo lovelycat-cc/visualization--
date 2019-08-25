@@ -7,7 +7,7 @@
       <p v-if="(initData.nodes && initData.nodes.length === 0) || initData.nodes === undefined" class="tip">点击左侧点出现点的具体信息, 没有出现力导图则请输入适当关键词进行搜索</p>
       <div class="tag-wrap">
         <div class ="tags hidden">
-          <Tag class="tag" v-if="keyClicked"></Tag>
+          <Tag class="tag" v-if="keyClicked">{{keyClicked}}</Tag>
           <Tag
             class="tag"
             v-for="(item, index) in groupClicked"
@@ -82,7 +82,8 @@ export default {
       initGroupList: [],
       groupOfKeyWord: [],
       currentLabelIndex: 0,
-      init: 0
+      init: 0,
+      keywordList: []
     }
   },
   mounted () {
@@ -109,6 +110,9 @@ export default {
         })
         let rectNodes = Object.keys(objRect)
         this.currentGroupList = rectNodes.concat([])
+        this.keywordList = res.data.keywords.map((item, index) =>{
+          return item.toLowerCase()
+        })
         this.drawInit(res.data)
         res.data.nodes.forEach((item, index) => {
           this.nodesObj[item.id] = item
@@ -215,7 +219,7 @@ export default {
       let _self_ = this
       const simulation = d3.forceSimulation(nodes)
         .force('link', d3.forceLink(links).id(d => d.id))
-        .force('charge', d3.forceManyBody())
+        .force('charge', d3.forceManyBody().strength(-15/_self_.keywordList.length))
         .force('center', d3.forceCenter(this.width / 2, this.height / 2))
       let svg
       if (first) {
@@ -241,7 +245,7 @@ export default {
         .join('circle')
         .attr('r', 5)
         .attr('class', function (d, i) {
-          if (d.id.toLowerCase() === _self_.$route.query.key.toLowerCase()) {
+          if (_self_.keywordList.indexOf(d.id.toLowerCase()) !== -1) {
             _self_.groupOfKeyWord = d.group
             return 'keyword'
           }
@@ -274,7 +278,7 @@ export default {
       })
       this.spinShow = false
       if (this.groupOfKeyWord.length > 0) {
-        this.getDetail(this.$route.query.key, this.groupOfKeyWord)
+        this.getDetail(this.keywordList[0], this.groupOfKeyWord)
       }
     },
     redraw (rectNodes, objRect) {

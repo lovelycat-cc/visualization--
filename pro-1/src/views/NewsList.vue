@@ -122,7 +122,8 @@ export default {
       this.moreContentModal = {}
       this.$set(this.moreContentModal, 'show', false)
     },
-    pageChange () {
+    pageChange (e) {
+      this.page.index = e
       this.getDetail(this.$route.query.key, this.labels[this.currentLabelIndex], this.page.index, this.page.size, 'spinShow')
     }
   }

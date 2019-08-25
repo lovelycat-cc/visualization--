@@ -46,7 +46,7 @@ def getConnectedNodes():
   links = []
   label_list = ['civilization', 'economy', 'education', 'military', 'polity', 'society', 'sports', 'other']
   for (index, label) in enumerate(label_list):
-    words_dict = get_words_connection(keyword, './data/forcegraph/news_' + label + '_word2vec.w2v')
+    words_dict, root = get_words_connection(keyword, './data/forcegraph/news_' + label + '_word2vec.w2v')
     for (k, v) in words_dict.items():
       nodes.add(k)
       nodes.update(v)
@@ -63,6 +63,7 @@ def getConnectedNodes():
   res = {}
   res['nodes'] = []
   res['links'] = []
+  res['keywords'] = root
   for n in list(nodes):
     res['nodes'].append({
       'id': n,
@@ -88,7 +89,7 @@ def getDetail():
   response.headers['Content-type'] = 'application/json; charset=utf-8'
   length = len(res)
   end = min(page_index * page_size, len(res))
-  res = res[(page_index - 1) * page_index:end]  
+  res = res[(page_index - 1) * page_size:end]  
   res_json = {
     'total': length,
     'data': res
