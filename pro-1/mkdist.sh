@@ -6,6 +6,7 @@ else
 	# rm -rf ../frontend-test/dist/*
 	# cp -r dist/* ../frontend-test/dist/
 	echo 'build'
+echo $2
 fi
 cd ../
 git add .
