@@ -23,7 +23,7 @@ def get_words_connection(keywords, word2vec_filepath):
         unseen += new_expanding
     # 第二轮
     for word in unseen:
-        new_expanding = get_word_list(news_word2vec.most_similar(word, topn=5))
+        new_expanding = get_word_list(news_word2vec.most_similar(word, topn=2))
         seen[word].update(new_expanding)
     return (seen, root)
 
