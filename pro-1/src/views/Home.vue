@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="tags"></div>
-    <Carousel class="carousel" v-model="carousel" loop autoplay :autoplay-speed="5000">
+    <Carousel class="carousel" v-model="carousel" autoplay :autoplay-speed="5000">
       <CarouselItem v-for="(item, index) in groupList" :key="index">
         <div :class="`svg-${index}`" class="svg"></div>
       </CarouselItem>
