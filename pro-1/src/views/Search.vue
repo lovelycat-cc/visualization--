@@ -133,10 +133,6 @@ export default {
       } else {
         this.groupClicked = label.concat([])
       }
-      if (this.groupClicked.indexOf(this.$route.query.label) !== -1 && this.init === 0) {
-        this.currentLabelIndex = this.groupClicked.indexOf(this.$route.query.label)
-        this.init++
-      }
       this.$axios.get(`/getInfoByKeyword?keyword=${keyword.toLowerCase()}&label=${this.groupClicked[this.currentLabelIndex]}&page_size=2&page_index=1`).then(res => {
         this.newsList = res.data.data
         this.spinRightShow = false
@@ -248,7 +244,9 @@ export default {
         .attr('r', 5)
         .attr('class', function (d, i) {
           if (_self_.keywordList.indexOf(d.id.toLowerCase()) !== -1) {
-            _self_.groupOfKeyWord = d.group
+            if (_self_.keywordList.indexOf(d.id.toLowerCase()) === 0) {
+              _self_.groupOfKeyWord = d.group
+            }
             return 'keyword'
           }
         })
@@ -263,6 +261,7 @@ export default {
           return _self_.scale[color]
         })
         .on('click', function (d) {
+          _self_.currentLabelIndex = 0
           _self_.getDetail(d.id, d.group)
         })
         .call(this.drag(simulation))
@@ -280,6 +279,11 @@ export default {
       })
       this.spinShow = false
       if (this.groupOfKeyWord.length > 0 && first) {
+        if (this.$route.query.label) {
+          this.currentLabelIndex = this.groupOfKeyWord.indexOf(this.$route.query.label)
+        } else {
+          this.currentLabelIndex = 0
+        }
         this.getDetail(this.keywordList[0], this.groupOfKeyWord)
       }
     },
