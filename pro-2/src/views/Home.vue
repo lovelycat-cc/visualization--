@@ -10,23 +10,23 @@
           <Col class="btns" :lg="6" :md="6" :sm="24" :xs="24">
             <Row type="flex">
               <Col :lg="24" :md="24" :sm="6" :xs="12">
-                <Button type="primary" ghost class="btn" text="textrank">textrank</Button>
+                <Button type="primary" ghost class="btn" text="textrank" @click="submit('textrank')">textrank</Button>
               </Col>
               <Col :lg="24" :md="24" :sm="6" :xs="12">
-                <Button type="primary" ghost class="btn" text="textrank">textrank</Button>
+                <Button type="primary" ghost class="btn" text="textrank" @click="submit('textrank')">textrank</Button>
               </Col>
               <Col :lg="24" :md="24" :sm="6" :xs="12">
-                <Button type="primary" ghost class="btn" text="textrank">textrank</Button>
+                <Button type="primary" ghost class="btn" text="textrank" @click="submit('textrank')">textrank</Button>
               </Col>
               <Col :lg="24" :md="24" :sm="6" :xs="12">
-                <Button type="primary" ghost class="btn" text="textrank">textrank</Button>
+                <Button type="primary" ghost class="btn" text="textrank" @click="submit('textrank')">textrank</Button>
               </Col>
             </Row>
           </Col>
           <Col :lg="18" :md="18" :sm="24" :xs="24">
-            <h4 class="head">{{reviewHead}}</h4>
+            <h4 class="head">{{summaryHead}}</h4>
             <div class="cont">
-              {{review}}
+              {{summary}}
             </div>
           </Col>
         </Row>
@@ -42,15 +42,18 @@ export default {
     return {
       initNewsHead: '',
       initNews: '',
-      reviewHead: '我是标题我是标题',
-      review: '我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要'
+      summaryHead: '我是标题我是标题',
+      summary: '我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要我是摘要'
     }
   },
   mounted () {
 
   },
   methods: {
-
+    submit (flag) {
+      console.log(flag)
+      // 此处请求，提交initNewsHead和initNews，得到summaryHead和summary
+    }
   }
 }
 </script>
