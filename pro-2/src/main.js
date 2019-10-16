@@ -11,6 +11,8 @@ Vue.use(iView)
 Vue.prototype.$axios = axios
 // eslint-disable-next-line
 axios.defaults.baseURL = SERVICE_URL
+// eslint-disable-next-line
+axios.defaults.timeout = SERVICE_TIMEOUT
 Vue.config.productionTip = false
 
 let color = {
