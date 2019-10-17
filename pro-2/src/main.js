@@ -4,39 +4,33 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from 'axios'
-import iView from 'iview'
+import iView, {Notice} from 'iview'
 import 'iview/dist/styles/iview.css'
 Vue.use(iView)
 
 Vue.prototype.$axios = axios
 // eslint-disable-next-line
 axios.defaults.baseURL = SERVICE_URL
-// eslint-disable-next-line
-axios.defaults.timeout = SERVICE_TIMEOUT
 Vue.config.productionTip = false
 
-let color = {
-  'civilization': '#ff7f0e',
-  'economy': '#2ca02c',
-  'education': '#d62728',
-  'military': '#9467bd',
-  'polity': '#1f77b4',
-  'society': '#e377c2',
-  'sports': '#7f7f7f',
-  'other': '#bcbd22'
-}
-let labels = {
-  'civilization': '人文',
-  'economy': '经济',
-  'education': '教育',
-  'military': '军事',
-  'polity': '政治',
-  'society': '社会',
-  'sports': '体育',
-  'other': '其他'
-}
-Vue.prototype.scale = color
-Vue.prototype.labelsObj = labels
+router.beforeEach((to, from, next) => {
+  if (from.fullPath === '/lda' && !sessionStorage.getItem('allowJump')) {
+    Notice.warning({
+      title: '警告',
+      desc: '当程序在运行，按钮处于等待状态时跳转可能导致该程序失效，关闭此弹窗即跳转，请谨慎操作！',
+      duration: 0,
+      onClose: () => {
+        sessionStorage.setItem('allowJump', 'true')
+        next({
+          path: to.fullPath
+        })
+      }
+    })
+  } else {
+    next()
+    sessionStorage.setItem('allowJump', '')
+  }
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

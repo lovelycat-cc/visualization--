@@ -8,7 +8,7 @@
             <MenuItem name="1">
               <router-link to="/"><Icon type="ios-navigate"></Icon>摘要提取</router-link>
             </MenuItem>
-            <MenuItem name="2">
+            <MenuItem name="3">
               <Icon type="md-help-circle" size="18" class="help-btn" @click="helpModal = true"></Icon>
             </MenuItem>
           </div>
@@ -46,12 +46,22 @@
 export default {
   data () {
     return {
-      helpModal: false,
-      searchKey: ''
+      helpModal: false
     }
   },
   mounted () {
-    this.searchKey = this.$route.query.key
+    window.onbeforeunload = function (e) {
+      e = e || window.event
+      // 兼容IE8和Firefox 4之前的版本
+      if (e) {
+        e.returnValue = '程序运行状态刷新页面将影响后台程序的运行。'
+      }
+      // Chrome, Safari, Firefox 4+, Opera 12+ , IE 9+
+      return '程序运行状态刷新页面将影响后台程序的运行。'
+    }
+  },
+  destroyed () {
+    window.onbeforeunload = null
   },
   methods: {
     okModal () {
@@ -59,9 +69,6 @@ export default {
     },
     cancelModal () {
       this.helpModal = false
-    },
-    getSearchKey () {
-      this.searchKey = this.$route.query.key
     }
   },
   computed: {
@@ -70,6 +77,9 @@ export default {
       switch (this.$route.path) {
         case '/':
           res = '摘要提取'
+          break
+        case '/lda':
+          res = 'lda'
           break
       }
       return res

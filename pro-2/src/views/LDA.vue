@@ -16,23 +16,13 @@
           <Col class="btns" :lg="6" :md="6" :sm="24" :xs="24">
             <Row type="flex">
               <Col :lg="24" :md="24" :sm="6" :xs="12">
-                <Tooltip placement="top" content="TextRank">
-                  <Button type="primary" ghost class="btn oneline" :disabled="flags.indexOf(loadingText) !== -1 && flags.indexOf(loadingText) !== 0" :loading="loadingText === 'text_rank'" @click="submit('text_rank')">TextRank</Button>
-                </Tooltip>
-              </Col>
-              <Col :lg="24" :md="24" :sm="6" :xs="12">
-                <Tooltip placement="top" content="NaiveSentVec">
-                  <Button type="primary" ghost class="btn oneline" :disabled="flags.indexOf(loadingText) !== -1 && flags.indexOf(loadingText) !== 1" :loading="loadingText === 'naive_sent_vec'" @click="submit('naive_sent_vec')">NaiveSentVec</Button>
+                <Tooltip placement="top" content="LDA">
+                  <Button type="primary" ghost class="btn oneline" :loading="loadingText === 'lda'" @click="submit('lda')">LDA</Button>
                 </Tooltip>
               </Col>
               <Col :lg="24" :md="24" :sm="6" :xs="12">
                 <Tooltip placement="top" content="Word2Vec+WR">
-                  <Button type="primary" ghost class="btn oneline" :disabled="flags.indexOf(loadingText) !== -1 && flags.indexOf(loadingText) !== 2" :loading="loadingText === 'w2v_wr'" @click="submit('w2v_wr')">Word2Vec+WR</Button>
-                </Tooltip>
-              </Col>
-              <Col :lg="24" :md="24" :sm="6" :xs="12">
-                <Tooltip placement="top" content="LDA">
-                  <router-link to="/lda"><Button type="primary" ghost class="btn oneline" :disabled="flags.indexOf(loadingText) !== -1 && flags.indexOf(loadingText) !== 3">更多</Button></router-link>
+                  <router-link to="/"><Button type="primary" ghost class="btn oneline" :disabled="flags.indexOf(loadingText) !== -1">更多</Button></router-link>
                 </Tooltip>
               </Col>
             </Row>
@@ -66,7 +56,7 @@ export default {
       },
       initNews: {},
       loadingText: '',
-      flags: ['text_rank', 'naive_sent_vec', 'w2v_wr', 'lda'],
+      flags: ['lda'],
       summaryHead: '',
       summary: '请在左侧输入新闻正文，并选择相应方法按钮进行自动摘要提取。'
     }
@@ -85,17 +75,19 @@ export default {
             title: this.initNews.title ? this.initNews.title : '',
             type: flag
           }
-          this.loadingText = flag
           sessionStorage.setItem('loading', 'true')
-          this.$axios.post('/summary', postForm).then(res => {
-            this.loadingText = ''
+          this.loadingText = flag
+          // eslint-disable-next-line
+          this.$axios.post(`${LDA_URL}/summary`, postForm).then(res => {
+            console.log(res)
             sessionStorage.setItem('loading', '')
+            this.loadingText = ''
             this.summaryHead = this.initNews.title ? this.initNews.title : ''
             this.summary = res.data
           }).catch(e => {
             console.log(e)
-            this.summaryHead = ''
             sessionStorage.setItem('loading', '')
+            this.summaryHead = ''
             this.summary = '自动摘要未生成'
             this.loadingText = ''
           })
