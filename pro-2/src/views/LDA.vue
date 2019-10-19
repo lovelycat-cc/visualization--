@@ -39,6 +39,18 @@
         </Row>
       </Col>
     </Row>
+    <Modal
+        v-model="tipModal.show"
+        title="帮助文档"
+        @on-ok="okModal"
+        :scollable="true"
+        @on-cancel="cancelModal">
+        <p>LDA方法比较慢，请耐心等待！等待过程请谨慎刷新，刷新可能会影响服务端运行。</p>
+        <p v-if="loadingText === 'lda'">程序正在运行中，请等待…</p>
+        <div slot="footer">
+          <Button type="primary" :loading="loadingText === 'lda'" @click="okModal">确定</Button>
+        </div>
+    </Modal>
   </div>
 </template>
 
@@ -58,39 +70,47 @@ export default {
       loadingText: '',
       flags: ['lda'],
       summaryHead: '',
-      summary: '请在左侧输入新闻正文，并选择相应方法按钮进行自动摘要提取。'
+      summary: '请在左侧输入新闻正文，并选择相应方法按钮进行自动摘要提取。',
+      tipModal: {
+        show: false
+      }
     }
   },
   mounted () {
 
   },
   methods: {
+    okModal () {
+      let postForm = {
+        text: this.initNews.text,
+        title: this.initNews.title ? this.initNews.title : '',
+        type: 'lda'
+      }
+      sessionStorage.setItem('loading', 'true')
+      this.loadingText = 'lda'
+      // eslint-disable-next-line
+      this.$axios.post(`${LDA_URL}/summary`, postForm).then(res => {
+        sessionStorage.setItem('loading', '')
+        this.loadingText = ''
+        this.summaryHead = this.initNews.title ? this.initNews.title : ''
+        this.summary = res.data
+        this.tipModal.show = false
+      }).catch(e => {
+        console.log(e)
+        sessionStorage.setItem('loading', '')
+        this.summaryHead = ''
+        this.summary = '自动摘要未生成'
+        this.loadingText = ''
+      })
+    },
+    cancelModal () {
+      this.tipModal.show = false
+    },
     submit (flag) {
-      console.log(flag)
       // 此处请求，提交initNewsHead和initNews，得到summaryHead和summary
       this.$refs['newsForm'].validate((valid) => {
         if (valid) {
-          let postForm = {
-            text: this.initNews.text,
-            title: this.initNews.title ? this.initNews.title : '',
-            type: flag
-          }
-          sessionStorage.setItem('loading', 'true')
-          this.loadingText = flag
-          // eslint-disable-next-line
-          this.$axios.post(`${LDA_URL}/summary`, postForm).then(res => {
-            console.log(res)
-            sessionStorage.setItem('loading', '')
-            this.loadingText = ''
-            this.summaryHead = this.initNews.title ? this.initNews.title : ''
-            this.summary = res.data
-          }).catch(e => {
-            console.log(e)
-            sessionStorage.setItem('loading', '')
-            this.summaryHead = ''
-            this.summary = '自动摘要未生成'
-            this.loadingText = ''
-          })
+          this.tipModal.show = true
         }
       })
     }

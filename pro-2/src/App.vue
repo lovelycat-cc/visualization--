@@ -59,6 +59,7 @@ export default {
       // Chrome, Safari, Firefox 4+, Opera 12+ , IE 9+
       return '程序运行状态刷新页面将影响后台程序的运行。'
     }
+    sessionStorage.setItem('loading', '')
   },
   destroyed () {
     window.onbeforeunload = null

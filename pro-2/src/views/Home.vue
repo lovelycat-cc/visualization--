@@ -76,7 +76,6 @@ export default {
   },
   methods: {
     submit (flag) {
-      console.log(flag)
       // 此处请求，提交initNewsHead和initNews，得到summaryHead和summary
       this.$refs['newsForm'].validate((valid) => {
         if (valid) {

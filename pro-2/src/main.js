@@ -14,7 +14,7 @@ axios.defaults.baseURL = SERVICE_URL
 Vue.config.productionTip = false
 
 router.beforeEach((to, from, next) => {
-  if (from.fullPath === '/lda' && !sessionStorage.getItem('allowJump')) {
+  if (from.fullPath === '/lda' && !sessionStorage.getItem('allowJump') && sessionStorage.getItem('loading')) {
     Notice.warning({
       title: '警告',
       desc: '当程序在运行，按钮处于等待状态时跳转可能导致该程序失效，关闭此弹窗即跳转，请谨慎操作！',
