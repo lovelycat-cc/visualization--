@@ -15,6 +15,14 @@
 /pro-2/test/unit/coverage/
 /pro-2/test/e2e/reports/
 /pro-2/selenium-debug.log
+/pro-3/node_modules/
+/pro-3/dist/
+/pro-3/npm-debug.log*
+/pro-3/yarn-debug.log*
+/pro-3/yarn-error.log*
+/pro-3/test/unit/coverage/
+/pro-3/test/e2e/reports/
+/pro-3/selenium-debug.log
 
 /frontend-test/__pycache__
 
