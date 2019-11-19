@@ -1,0 +1,1 @@
+const SERVICE_URL = 'http://localhost:1234'
