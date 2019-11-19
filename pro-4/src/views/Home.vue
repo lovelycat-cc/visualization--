@@ -139,6 +139,7 @@ export default {
   margin-left: 6px;
   border-radius: 4px;
   border: 1px solid #dcdee2;
+  word-break: break-word;
 }
 .user .text::before {
   content: '';
@@ -175,6 +176,7 @@ export default {
   margin-left: 6px;
   border-radius: 4px;
   border: 1px solid #dcdee2;
+  word-break: break-word;
 }
 .robot .text::before {
   content: '';
