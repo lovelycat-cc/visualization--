@@ -1,13 +1,13 @@
 <template>
   <div class="home">
     <div class="container">
-      <div class="content">
+      <div class="content" ref="content">
         <div class="item" v-for="(item, index) in msgList" :key="index">
           <div class="robot" v-if="item.type === 'robot'">
-            <img src="../assets/robot.png"/> <div class="text">{{item.msg}}</div>
+            <img src="../assets/robot.png"/> <div class="text" v-html="item.msg"></div>
           </div>
           <div class="user" v-if="item.type === 'user'">
-            <div class="text">{{item.msg}}</div><img src="../assets/user.png"/>
+            <div class="text" v-html="item.msg"></div><img src="../assets/user.png"/>
           </div>
         </div>
       </div>
@@ -33,7 +33,6 @@ export default {
   },
   mounted () {
     if ('WebSocket' in window) {
-      console.log('您的浏览器支持 WebSocket!')
       // eslint-disable-next-line
       this.ws = new WebSocket(wsURL)
       this.ws.onopen = () => {
@@ -47,13 +46,15 @@ export default {
           msg: dataReceive.split(':')[1]
         })
         this.$forceUpdate()
-        console.log(this.msgList)
+        this.$nextTick(() => {
+          this.$refs.content.scrollTop = this.$refs.content.scrollHeight - this.$refs.content.offsetHeight
+        })
       }
       this.ws.onclose = () => {
         console.log('连接已关闭...')
       }
     } else {
-      console.log('您的浏览器不支持 WebSocket!')
+      alert('您的浏览器不支持 WebSocket!')
     }
   },
   beforeDestroy () {
@@ -132,7 +133,7 @@ export default {
 .user .text {
   background: #b2e281;
   padding: 5px;
-  width: 150px;
+  width: 220px;
   position: relative;
   float: right;
   overflow: visible;
@@ -170,7 +171,7 @@ export default {
 .robot .text {
   background: #ffffff;
   padding: 5px;
-  width: 150px;
+  width: 220px;
   position: relative;
   overflow: visible;
   margin-left: 6px;
